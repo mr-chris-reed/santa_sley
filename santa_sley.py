@@ -47,12 +47,14 @@ running = True
 
 # sprite picker function for animation
 sprite_index = 0
+counter = 0
 def spritePicker():
     global sprite_index
-    if sprite_index == TOTAL_SPRITES - 1:
-        sprite_index = 0
-    else:
-        sprite_index += 1
+    if counter % 20 == 0:
+        if sprite_index == TOTAL_SPRITES - 1:
+            sprite_index = 0
+        else:
+            sprite_index += 1
 
 # clock to set FPS
 clock = pygame.time.Clock()
@@ -73,10 +75,10 @@ while running:
             joy = pygame.joystick.Joystick(event.device_index)
             joysticks.append(joy)
 
-        if joysticks[0].get_button(2):
-            santa_sley_x += 5
+        santa_sley_x += joysticks[0].get_axis(0) * 5
 
     canvas.blit(santa_sley_list[sprite_index], (santa_sley_x, santa_sley_y))
     spritePicker()
     pygame.display.update()
-    clock.tick(10)
+    counter += 1
+    clock.tick(30)
