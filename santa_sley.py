@@ -20,6 +20,7 @@ santa_sley = pygame.image.load("santa_sley.png").convert_alpha()
 TOTAL_SPRITES = 3
 sprite_sheet_width = santa_sley.get_rect().width
 sprite_sheet_height = santa_sley.get_rect().height
+pine_tree = pygame.image.load("holiday_tree.png").convert_alpha()
 
 # transform sprite sheet size
 scale_size = 1.5
@@ -75,10 +76,12 @@ while running:
             joy = pygame.joystick.Joystick(event.device_index)
             joysticks.append(joy)
 
-        santa_sley_x += joysticks[0].get_axis(0) * 5
+        santa_sley_x += joysticks[0].get_axis(0) * 3
+        print(joysticks[0].get_axis(0))
+        santa_sley_y += joysticks[0].get_axis(1) * 3
 
     canvas.blit(santa_sley_list[sprite_index], (santa_sley_x, santa_sley_y))
     spritePicker()
     pygame.display.update()
     counter += 1
-    clock.tick(30)
+    clock.tick(60)
