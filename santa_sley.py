@@ -123,20 +123,20 @@ def checkIfPineTreeCanBeRemoved(pt):
             i += 1
 
 def checkForCollisionOnTop(ss, pt):
-    ss_hitbox = pygame.Rect((santa_sley_x + 20), (santa_sley_y + 40), SPRITE_WIDTH * 0.8, SPRITE_HEIGHT * 0.5)
-    pt_hitbox = pygame.Rect((pt.pine_tree_x + (pt.pine_tree_sprite_width // 2.5)), (pt.pine_tree_y + pt.pine_tree_y // 10), pt.pine_tree_sprite_width * 0.2, pt.pine_tree_sprite_height * 0.87)
-    pygame.draw.rect(canvas, (255,0,0), ss_hitbox)
-    pygame.draw.rect(canvas, (0,255,0), pt_hitbox) 
+    ss_hitbox = pygame.Rect((santa_sley_x + 20), (santa_sley_y + 55), SPRITE_WIDTH * 0.8, SPRITE_HEIGHT * 0.45)
+    pt_hitbox = pygame.Rect((pt.pine_tree_x + (pt.pine_tree_sprite_width // 2.5)), (pt.pine_tree_y + pt.pine_tree_y // 10), pt.pine_tree_sprite_width * 0.2, pt.pine_tree_sprite_height * 0.8)
+    #pygame.draw.rect(canvas, (255,0,0), ss_hitbox)
+    #pygame.draw.rect(canvas, (0,255,0), pt_hitbox) 
     if ss_hitbox.colliderect(pt_hitbox) and pt.wasHit == False:
         pt.wasHit = True
         return True
     return False
 
 def checkForCollisionOnBottom(ss, pt):
-    ss_hitbox = pygame.Rect((santa_sley_x + 20), (santa_sley_y + 40), SPRITE_WIDTH * 0.8, SPRITE_HEIGHT * 0.5)
-    pt_hitbox = pygame.Rect((pt.pine_tree_x + (pt.pine_tree_sprite_width // 2.7)), (pt.pine_tree_y + pt.pine_tree_sprite_height // 7.5), pt.pine_tree_sprite_width * 0.2, pt.pine_tree_sprite_height * 0.87)
-    pygame.draw.rect(canvas, (255,0,0), ss_hitbox)
-    pygame.draw.rect(canvas, (0,255,0), pt_hitbox)
+    ss_hitbox = pygame.Rect((santa_sley_x + 20), (santa_sley_y + 55), SPRITE_WIDTH * 0.8, SPRITE_HEIGHT * 0.45)
+    pt_hitbox = pygame.Rect((pt.pine_tree_x + (pt.pine_tree_sprite_width // 2.7)), (pt.pine_tree_y + pt.pine_tree_sprite_height // 5.5), pt.pine_tree_sprite_width * 0.2, pt.pine_tree_sprite_height * 0.8)
+    #pygame.draw.rect(canvas, (255,0,0), ss_hitbox)
+    #pygame.draw.rect(canvas, (0,255,0), pt_hitbox)
     if ss_hitbox.colliderect(pt_hitbox) and pt.wasHit == False:
         pt.wasHit = True
         return True
@@ -167,9 +167,10 @@ while running:
         if event.type == pygame.JOYDEVICEADDED:
             joy = pygame.joystick.Joystick(event.device_index)
             joysticks.append(joy)
-
-    santa_sley_x += joysticks[0].get_axis(0) * 5
-    santa_sley_y += joysticks[0].get_axis(1) * 5
+    if santa_sley_x >= 10 and santa_sley_x <= WIDTH:
+        santa_sley_x += joysticks[0].get_axis(0) * 5
+    if santa_sley_y >= 10 and santa_sley_y <= HEIGHT: 
+        santa_sley_y += joysticks[0].get_axis(1) * 5
 
      # check for collisions
     for pine_tree_top in pine_trees_top:
