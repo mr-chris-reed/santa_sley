@@ -15,6 +15,7 @@ trees_hit = 0
 
 # font
 font = pygame.font.Font('VT323-Regular.ttf', 50)
+font2 = pygame.font.Font('VT323-Regular.ttf', 75)
 text_trees_hit = font.render('Trees Hit: ' + str(trees_hit), True, (0, 0, 0))
 text_trees_hit.set_alpha(127)
 text_trees_hit_rect = text_trees_hit.get_rect()
@@ -23,6 +24,18 @@ text_trees_passed = font.render('Trees Passed: ' + str(trees_passed), True, (0, 
 text_trees_passed.set_alpha(127)
 text_trees_passed_rect = text_trees_hit.get_rect()
 text_trees_passed_rect.center = (WIDTH - WIDTH // 8, HEIGHT // 20)
+start_screen_text = font2.render('Christmas Tree Caverns!', True, (0, 0, 0))
+start_screen_text.set_alpha(127)
+start_screen_text_rect = start_screen_text.get_rect()
+start_screen_text_rect.center = (WIDTH // 2, HEIGHT // 4)
+start_instructions = font.render('Press start on the controller', True, (0, 0, 0))
+start_instructions.set_alpha(127)
+start_instructions_rect = start_screen_text.get_rect()
+start_instructions_rect.center = (WIDTH // 2, HEIGHT // 3)
+start_instructions2 = font.render('to start your journey!', True, (0, 0, 0))
+start_instructions2.set_alpha(127)
+start_instructions2_rect = start_screen_text.get_rect()
+start_instructions2_rect.center = (WIDTH // 2, HEIGHT // 2.5)
 
 # initializing pygame, setting up the surface (canvas)
 pygame.init()
@@ -64,10 +77,15 @@ for i in range(TOTAL_SPRITES):
     image = santa_sley.subsurface(rect)
     santa_sley_list.append(image)
 
+# odds-n-ends variables
+speed = 5
+fps = 60
+tree_density = 90
+
 # pine trees
 class PineTree():
 
-    def __init__(self, flip):
+    def __init__(self, flip, speed):
         self.scale = random.randint(2, 6)
         self.pine_tree = pygame.image.load("holiday_tree.png").convert_alpha()
         if flip:
@@ -81,9 +99,10 @@ class PineTree():
         self.image = self.pine_tree.subsurface(self.rect)
         self.wasHit = False
         self.successfullyPassed = False
+        self.speed = speed
 
     def moveLeft(self):
-        self.pine_tree_x -= 5
+        self.pine_tree_x -= self.speed
 
     def moveTreeToTop(self):
         self.pine_tree_y = 0
@@ -93,6 +112,7 @@ pine_trees_top = []
 
 # variable to control state of entire game
 running = True
+gameNotStarted = True
 
 # sprite picker function for animation
 sprite_index = 0
@@ -106,11 +126,17 @@ def spritePicker():
             sprite_index += 1
 
 def checkToAddAnotherTree(pt, flip):
-    if (counter % 90) == 0 and not(flip):
-        new_pine_tree = PineTree(flip)
+    global speed, tree_density
+    print(speed)
+    if (trees_passed % 20 == 0) and (counter % 60 == 0) and (trees_passed != 0):
+        speed += 1
+        if tree_density >= 10:
+            tree_density -= 10
+    if (counter % tree_density) == 0 and not(flip):
+        new_pine_tree = PineTree(flip, speed)
         pt.append(new_pine_tree)
-    elif ((counter + 60) % 90) == 0 and flip:
-        new_pine_tree = PineTree(flip)
+    elif ((counter + 60) % tree_density) == 0 and flip:
+        new_pine_tree = PineTree(flip, speed)
         new_pine_tree.moveTreeToTop()
         pt.append(new_pine_tree)
 
@@ -154,6 +180,7 @@ clock = pygame.time.Clock()
 
 # game loop - poll events until window is closed out
 while running:
+
     # paint canvas
     canvas.fill((207, 207, 230))
 
@@ -167,10 +194,48 @@ while running:
         if event.type == pygame.JOYDEVICEADDED:
             joy = pygame.joystick.Joystick(event.device_index)
             joysticks.append(joy)
-    if santa_sley_x >= 10 and santa_sley_x <= WIDTH:
+
+    # start screen
+    while gameNotStarted:
+        canvas.fill((207, 207, 230))
+        canvas.blit(start_screen_text, start_screen_text_rect)
+        canvas.blit(start_instructions, start_instructions_rect)
+        canvas.blit(start_instructions2, start_instructions2_rect)
+        pygame.display.update()
+        clock.tick(fps)
+
+        # event handler
+        for event in pygame.event.get():
+            
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == pygame.JOYDEVICEADDED:
+                joy = pygame.joystick.Joystick(event.device_index)
+                joysticks.append(joy)
+
+        if joysticks[0].get_button(9):
+            gameNotStarted = False
+
+    # movement of santa's sley
+    if santa_sley_x >= 0:
         santa_sley_x += joysticks[0].get_axis(0) * 5
-    if santa_sley_y >= 10 and santa_sley_y <= HEIGHT: 
+    else:
+        santa_sley_x = 0
+    if santa_sley_x <= WIDTH - SPRITE_WIDTH:
+        santa_sley_x += joysticks[0].get_axis(0) * 5
+    else:
+        santa_sley_x = WIDTH - SPRITE_WIDTH
+
+    if santa_sley_y >= 0:
         santa_sley_y += joysticks[0].get_axis(1) * 5
+    else:
+        santa_sley_y = 0
+    if santa_sley_y <= HEIGHT - SPRITE_HEIGHT:
+        santa_sley_y += joysticks[0].get_axis(1) * 5
+    else:
+        santa_sley_y = HEIGHT - SPRITE_HEIGHT
 
      # check for collisions
     for pine_tree_top in pine_trees_top:
@@ -210,4 +275,4 @@ while running:
     spritePicker()
     pygame.display.update()
     counter += 1
-    clock.tick(60)
+    clock.tick(fps)
